@@ -1,9 +1,12 @@
 'use strict';
 
 module.exports = {
-  development: {},
-
-  test: {},
-
-  production: {}
+  development: {
+    client: 'pg',
+    connection: 'postgres://localhost/bookshelf_dev'
+  },
+  test: {
+    client: 'pg',
+    connection: 'postgres://localhost/bookshelf_test'
+  }
 };
