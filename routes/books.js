@@ -4,7 +4,9 @@ const express = require('express');
 
 // eslint-disable-next-line new-cap
 const router = express.Router();
-const { camelizeKeys } = require('humps');
+const { camelizeKeys, decamelizeKeys } = require('humps');
+
+// const boom = require('boom');
 const knex = require('../knex');
 
 router.get('/books', (_req, res, next) => {
@@ -19,6 +21,9 @@ router.get('/books', (_req, res, next) => {
 });
 
 router.get('/books/:id', (req, res, next) => {
+  if (Number.isNaN(Number.parseInt(req.params.id))) {
+    return next();
+  }
   knex('books')
     .where('id', req.params.id)
     .first()
@@ -35,6 +40,49 @@ router.get('/books/:id', (req, res, next) => {
 });
 
 router.post('/books', (req, res, next) => {
+  let missing = [
+    'title',
+    'author',
+    'genre',
+    'description',
+    'cover_url'
+  ];
+
+  missing = missing.filter((element) => {
+    return !Object.keys(req.body).includes(decamelizeKeys(element));
+  });
+  let key;
+  console.log(missing.length);
+  if (missing.length > 0) {
+    switch (missing[0]) {
+      case 'title':
+        key = 'Title';
+        break;
+      case 'author':
+        key = 'Author';
+        break;
+      case 'genre':
+        key = 'Genre';
+        break;
+      case 'description':
+        key = 'Description';
+        break;
+      case 'cover_url':
+        key = 'Cover URL';
+        break;
+      default:
+    }
+    const err = new Error(`${key} must not be blank`);
+
+    err.output = {};
+    err.output.statusCode = 400;
+
+    throw err;
+
+    // throw boom.create(400, `${key} must not be blank`)
+  }
+  console.log('hello');
+
   knex('books')
     .insert({
       title: req.body.title,
@@ -52,6 +100,9 @@ router.post('/books', (req, res, next) => {
 });
 
 router.patch('/books/:id', (req, res, next) => {
+  if (Number.isNaN(Number.parseInt(req.params.id))) {
+    return next();
+  }
   knex('books')
     .where('id', req.params.id)
     .first()
@@ -79,6 +130,9 @@ router.patch('/books/:id', (req, res, next) => {
 });
 
 router.delete('/books/:id', (req, res, next) => {
+  if (Number.isNaN(Number.parseInt(req.params.id))) {
+    return next();
+  }
   knex('books')
     .del('*')
     .where('id', req.params.id)
