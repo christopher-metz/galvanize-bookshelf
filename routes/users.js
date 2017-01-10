@@ -37,7 +37,7 @@ router.post('/users', (req, res, next) => {
         .insert(decamelizeKeys({ firstName, lastName, email, hashedPassword }), '*'); // eslint-disable-line max-len
     })
     .then((users) => {
-      const user = users[0];
+      const user = camelizeKeys(users[0]);
 
       const claim = { userId: user.id };
       const token = jwt.sign(claim, process.env.JWT_KEY, {
@@ -50,9 +50,9 @@ router.post('/users', (req, res, next) => {
         secure: router.get('env') === 'production'
       });
 
-      delete user.hashed_password;
+      delete user.hashedPassword;
 
-      res.send(camelizeKeys(user));
+      res.send(user);
     })
     .catch((err) => {
       next(err);
