@@ -3,6 +3,7 @@
 const bcrypt = require('bcrypt-as-promised');
 const express = require('express');
 const boom = require('boom');
+const jwt = require('jsonwebtoken');
 const knex = require('../knex');
 
 // eslint-disable-next-line new-cap
@@ -37,6 +38,17 @@ router.post('/users', (req, res, next) => {
     })
     .then((users) => {
       const user = users[0];
+
+      const claim = { userId: user.id };
+      const token = jwt.sign(claim, process.env.JWT_KEY, {
+        expiresIn: '7 days'
+      });
+
+      res.cookie('token', token, {
+        httpOnly: true,
+        expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+        secure: router.get('env') === 'production'
+      });
 
       delete user.hashed_password;
 

@@ -25,6 +25,14 @@ router.post('/token', (req, res, next) => {
 
   const { email, password } = req.body;
 
+  if (!email || !email.trim()) {
+    return next(boom.create(400, 'Email must not be blank'));
+  }
+
+  if (!password) {
+    return next(boom.create(400, 'Password must not be blank')); // eslint-disable-line max-len
+  }
+
   knex('users')
     .where('email', email)
     .first()
