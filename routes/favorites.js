@@ -47,12 +47,7 @@ router.get('/favorites/check', authorize, (req, res, next) => {
     .then((rows) => {
       const row = rows[0];
 
-      if (!row) {
-        res.send(false);
-      }
-      else {
-        res.send(true);
-      }
+      res.send(Boolean(row));
     })
     .catch((err) => {
       next(err);
@@ -76,8 +71,8 @@ router.post('/favorites', authorize, (req, res, next) => {
 
       return knex('favorites')
       .insert({
-        book_id: bookId,
-        user_id: req.claim.userId
+        book_id: bookId, // eslint-disable-line camelcase
+        user_id: req.claim.userId // eslint-disable-line camelcase
       }, '*');
     })
     .then((favorites) => {
