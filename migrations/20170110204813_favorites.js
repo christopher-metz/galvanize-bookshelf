@@ -5,7 +5,7 @@ exports.up = function(knex) {
     table.increments();
     table.integer('book_id').notNullable().references('books.id').onDelete('cascade').index(); // eslint-disable-line max-len
     table.integer('user_id').notNullable().references('users.id').onDelete('cascade').index(); // eslint-disable-line max-len
-    table.timestamps(true, true).defaultTo(Date.now());
+    table.timestamps(true, true);
   });
 };
 
