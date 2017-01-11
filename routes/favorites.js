@@ -44,9 +44,8 @@ router.get('/favorites/check', authorize, (req, res, next) => {
   knex('favorites')
     .where('user_id', req.claim.userId)
     .where('book_id', req.query.bookId)
-    .then((rows) => {
-      const row = rows[0];
-
+    .first()
+    .then((row) => {
       res.send(Boolean(row));
     })
     .catch((err) => {
@@ -90,11 +89,11 @@ router.delete('/favorites', authorize, (req, res, next) => {
     return next(boom.create(400, 'Book ID must be an integer'));
   }
 
-  knex('books')
-    .where('id', bookId)
+  knex('favorites')
+    .where('book_id', bookId)
     .first()
-    .then((book) => {
-      if (!book) {
+    .then((favorite) => {
+      if (!favorite) {
         throw boom.create(404, 'Favorite not found');
       }
 
@@ -104,9 +103,6 @@ router.delete('/favorites', authorize, (req, res, next) => {
         .where('book_id', bookId);
     })
     .then((favorites) => {
-      if (!favorites.length) {
-        return next();
-      }
       const favorite = favorites[0];
 
       delete favorite.id;
